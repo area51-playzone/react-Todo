@@ -8,10 +8,12 @@ mongoose.connect('mongodb://localhost/to-do', (err) => {
 });
 
 app.set('view engine', 'ejs');
+app.use(express.static('deploy'));
+
 app.get("/",(req, res)=>{
   res.render('blank',{
     title: "Mastering flux",
-    body: "hello ejs 2.0.1 "
+    body: "hello ejs 3.02 "
   });  
 });
 
