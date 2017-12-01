@@ -23,6 +23,12 @@ app.get("/", (req,res)=>{
 	});
 });
 
+app.get("/all",(req, res)=>{
+  Task.find({}, (err, tasks) => {
+    res.send(tasks);
+  });
+});
+
 app.post("/add-task", (req,res)=>{
 	const task = new Task(req.body);
   task.save((err, task)=>{
@@ -33,6 +39,14 @@ app.post("/add-task", (req,res)=>{
     }
   });
   res.send(task);
+});
+
+app.post("/remove", (req,res)=>{
+  const _id = req.body._id;
+	Task.remove({_id}, (err) =>{
+    res.send({removed: Boolean(!err)});
+  });
+  
 });
 
 app.listen(3000, ()=>{

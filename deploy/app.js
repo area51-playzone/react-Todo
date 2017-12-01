@@ -1327,6 +1327,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var ADD_TASK = exports.ADD_TASK = 'addTask';
+var INIT_TASKS = exports.INIT_TASKS = 'initTasks';
+var REMOVED = exports.REMOVED = 'removed';
 
 /***/ }),
 /* 18 */
@@ -18817,6 +18819,8 @@ var _button = __webpack_require__(14);
 
 var _button2 = _interopRequireDefault(_button);
 
+var _tasks = __webpack_require__(36);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -18828,18 +18832,26 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Task = function (_React$Component) {
   _inherits(Task, _React$Component);
 
-  function Task() {
+  function Task(props) {
     _classCallCheck(this, Task);
 
-    return _possibleConstructorReturn(this, (Task.__proto__ || Object.getPrototypeOf(Task)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (Task.__proto__ || Object.getPrototypeOf(Task)).call(this));
+
+    _this.onClick = _this.onClick.bind(_this);
+    return _this;
   }
 
   _createClass(Task, [{
+    key: "onClick",
+    value: function onClick(e) {
+      (0, _tasks.remove)({ _id: this.props.id });
+    }
+  }, {
     key: "render",
     value: function render() {
       return _react2.default.createElement(
         _button2.default,
-        { className: "-primary -lg -block" },
+        { onClick: this.onClick, className: "-primary -lg -block" },
         this.props.children
       );
     }
@@ -18875,6 +18887,8 @@ var _types = __webpack_require__(17);
 
 var ACT = _interopRequireWildcard(_types);
 
+var _tasks = __webpack_require__(36);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -18895,6 +18909,7 @@ var TasksStore = function (_EventEmitter) {
 
     _this.tasks = [];
     _this.action = _this.action.bind(_this);
+    (0, _tasks.initTasks)();
     return _this;
   }
 
@@ -18904,23 +18919,44 @@ var TasksStore = function (_EventEmitter) {
       return this.tasks.slice(0);
     }
   }, {
+    key: 'initTasks',
+    value: function initTasks(tasks) {
+      this.tasks = tasks;
+      this.emit('change');
+    }
+  }, {
     key: 'addTask',
     value: function addTask(task) {
       var tasks = this.tasks.slice(0);
       tasks.push(task);
       this.tasks = tasks;
+      this.emit('change');
+    }
+  }, {
+    key: 'remove',
+    value: function remove(_ref) {
+      var _id = _ref._id;
 
+      this.tasks = this.tasks.filter(function (task) {
+        return task._id !== _id;
+      });
       this.emit('change');
     }
   }, {
     key: 'action',
-    value: function action(_ref) {
-      var type = _ref.type,
-          payload = _ref.payload;
+    value: function action(_ref2) {
+      var type = _ref2.type,
+          payload = _ref2.payload;
 
       switch (type) {
         case ACT.ADD_TASK:
           this.addTask(payload);
+          break;
+        case ACT.INIT_TASKS:
+          this.initTasks(payload);
+          break;
+        case ACT.REMOVED:
+          this.remove(payload);
           break;
       }
     }
@@ -19201,6 +19237,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addTask = addTask;
 exports.addTasksSync = addTasksSync;
+exports.remove = remove;
+exports.initTasks = initTasks;
 
 var _dispatcher = __webpack_require__(16);
 
@@ -19231,6 +19269,29 @@ function addTask(packt) {
 
 function addTasksSync(packt) {
   _dispatcher2.default.dispatch({ type: ACT.ADD_TASK, payload: packt });
+}
+
+function remove(packt) {
+  (0, _ajax2.default)({
+    url: '/remove',
+    data: packt,
+    successHook: function successHook(_ref) {
+      var removed = _ref.removed;
+
+      console.log("task removed:::::::::::");
+      removed && _dispatcher2.default.dispatch({ type: ACT.REMOVED, payload: packt });
+    }
+  });
+}
+function initTasks() {
+  (0, _ajax2.default)({
+    url: '/all',
+    method: "get",
+    successHook: function successHook(tasks) {
+      console.log("task fetched:::::::::::", tasks);
+      _dispatcher2.default.dispatch({ type: ACT.INIT_TASKS, payload: tasks });
+    }
+  });
 }
 
 /***/ }),
