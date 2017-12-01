@@ -7,6 +7,7 @@ export function addTask(packt){
     url: '/add-task',
     data: packt,
     successHook: (task) =>{
+      console.log("task:::::::::::", task);
       addTasksSync(task);
     }
   })
