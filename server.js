@@ -13,7 +13,7 @@ app.use(express.static('deploy'));
 app.get("/",(req, res)=>{
   res.render('blank',{
     title: "Mastering flux",
-    body: "hello ejs 3.02 "
+    body: "<div id='root'></div>"
   });  
 });
 

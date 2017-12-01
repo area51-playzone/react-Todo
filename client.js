@@ -1,3 +1,8 @@
-import React from 'react';
+import React from "react";
+import ReactDOM from "react-dom";
+import Tasks from "./components/tasks";
 
-console.log("hello world new 3.0002");
+ReactDOM.render(
+  <Tasks />,
+  document.getElementById("root")
+);
